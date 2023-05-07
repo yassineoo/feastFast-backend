@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:root1234@localhost:3306/feastFast"
+}
+
+model menuitems {
+  id            Int     @id @default(autoincrement())
+  restaurant_id Int
+  name          String  @db.VarChar(255)
+  description   String? @db.Text
+  price         Decimal @db.Decimal(10, 2)
+  image         String? @db.VarChar(255)
+
+  @@index([restaurant_id], map: "restaurant_id")
+}
+
+model notifications {
+  id                Int                             @id @default(autoincrement())
+  user_id           Int
+  order_id          Int
+  notification_type notifications_notification_type
+  sent_at           DateTime                        @db.DateTime(0)
+
+  @@index([order_id], map: "order_id")
+  @@index([user_id], map: "user_id")
+}
+
+model orderitems {
+  id                   Int     @id @default(autoincrement())
+  order_id             Int
+  menu_item_id         Int
+  quantity             Int
+  special_instructions String? @db.Text
+
+  @@index([menu_item_id], map: "menu_item_id")
+  @@index([order_id], map: "order_id")
+}
+
+model orders {
+  id               Int                 @id @default(autoincrement())
+  user_id          Int
+  restaurant_id    Int
+  delivery_address String              @db.VarChar(255)
+  delivery_notes   String?             @db.Text
+  order_status     orders_order_status
+  created_at       DateTime            @db.DateTime(0)
+  updated_at       DateTime            @db.DateTime(0)
+
+  @@index([restaurant_id], map: "restaurant_id")
+  @@index([user_id], map: "user_id")
+}
+
+model ratings {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  restaurant_id Int
+  rating        Int
+  review        String?  @db.Text
+  created_at    DateTime @db.DateTime(0)
+
+  @@index([restaurant_id], map: "restaurant_id")
+  @@index([user_id], map: "user_id")
+}
+
+model restaurants {
+  id              Int     @id @default(autoincrement())
+  name            String  @db.VarChar(255)
+  picture         String  @db.VarChar(255)
+  logo            String? @db.VarChar(255)
+  locationAddress String  @db.VarChar(255)
+  locationMapLat  Float?  @db.Float
+  locationMaplong Float?  @db.Float
+  cuisineType     String  @db.VarChar(255)
+  phoneNumber     String? @db.VarChar(20)
+  averageRating   Float?  @db.Float
+  email           String? @db.VarChar(255)
+  instaLink       String? @db.VarChar(255)
+  fbLink          String? @db.VarChar(255)
+}
+
+model users {
+  id                Int                     @id @default(autoincrement())
+  name              String                  @db.VarChar(255)
+  email             String                  @unique(map: "email") @db.VarChar(255)
+  phone_number      String                  @unique(map: "phone_number") @db.VarChar(20)
+  address           String                  @db.VarChar(255)
+  password          String                  @db.VarChar(255)
+  latitude          Float?                  @db.Float
+  longitude         Float?                  @db.Float
+  profile_picture   String?                 @db.VarChar(255)
+  registration_type users_registration_type
+  social_media_id   String?                 @db.VarChar(255)
+}
+
+enum notifications_notification_type {
+  Preparing
+  Picked_Up  @map("Picked Up")
+  On_the_Way @map("On the Way")
+}
+
+enum orders_order_status {
+  Pending
+  Preparing
+  Picked_Up @map("Picked Up")
+  Delivered
+}
+
+enum users_registration_type {
+  Native
+  Facebook
+  Google
+}
