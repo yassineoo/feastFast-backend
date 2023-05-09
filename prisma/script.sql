@@ -97,3 +97,36 @@ INSERT INTO Restaurants (name, picture, logo, locationAddress, locationMapLat, l
 INSERT INTO Restaurants (name, picture, logo, locationAddress, locationMapLat, locationMaplong, cuisineType, phoneNumber, averageRating, email, instaLink, fbLink) VALUES 
 ("Pho House", "pho-house.jpg", "pho-house-logo.png", "567 Walnut Street", 34.0522, -118.2437, "Vietnamese", "(555) 555-6789", 4.8, "info@phohouse.com", "https://instagram.com/phohouse", "https://facebook.com/phohouse");
 
+
+
+INSERT INTO Users (name, email, phone_number, address, password, latitude, longitude, profile_picture, registration_type, social_media_id)
+VALUES
+  ('John Doe', 'john.doe@example.com', '1234567890', '123 Main St, Anytown, USA', 'mypassword', 40.7128, -74.0060, 'profile-pic.jpg', 'Native', NULL),
+  ('Jane Smith', 'jane.smith@example.com', '0987654321', '456 Elm St, Anytown, USA', 'anotherpassword', 37.7749, -122.4194, 'profile-pic.png', 'Facebook', '123456'),
+  ('Bob Johnson', 'bob.johnson@example.com', '5555555555', '789 Oak St, Anytown, USA', 'yetanotherpassword', 51.5074, -0.1278, NULL, 'Google', '789012');
+
+INSERT INTO Ratings (user_id, restaurant_id, rating, review, created_at)
+VALUES (1, 1, 4, 'Great food and atmosphere!', '2023-05-09 10:30:00');
+
+select * from MenuItems ;
+INSERT INTO MenuItems (restaurant_id, name, description, price, image)
+VALUES (1, 'French Fries', 'Thin, crispy french fries with sea salt', 4.99, 'https://example.com/images/fries.jpg');
+
+INSERT INTO MenuItems (restaurant_id, name, description, price, image)
+VALUES (1, 'Chicken Wings', 'Spicy buffalo chicken wings with blue cheese dip', 12.99, 'https://example.com/images/wings.jpg');
+
+INSERT INTO MenuItems (restaurant_id, name, description, price, image)
+VALUES (2, 'Margherita Pizza', 'Classic Neapolitan-style pizza with tomato sauce, mozzarella, and fresh basil', 14.99, 'https://example.com/images/pizza.jpg');
+
+INSERT INTO MenuItems (restaurant_id, name, description, price, image)
+VALUES (2, 'Caesar Salad', 'Crisp romaine lettuce with parmesan cheese, croutons, and classic Caesar dressing', 8.99, 'https://example.com/images/salad.jpg');
+
+
+INSERT INTO Orders (user_id, restaurant_id, delivery_address, delivery_notes, order_status, created_at, updated_at)
+VALUES 
+  (1, 1, '123 Main St', 'Ring buzzer for delivery', 'Pending', NOW(), NOW()),
+  (2, 3, '456 Elm St', '', 'Preparing', NOW(), NOW());
+  
+INSERT INTO OrderItems (order_id, menu_item_id, quantity, special_instructions) VALUES
+(11, 1, 2, 'No onions please'),
+(11, 4, 1, 'Extra cheese');
