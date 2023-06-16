@@ -43,14 +43,22 @@ CREATE TABLE Ratings (
   FOREIGN KEY (restaurant_id) REFERENCES Restaurants(id)
 );
 
+
+CREATE TABLE Categorie (
+  name_categorie VARCHAR(100) PRIMARY KEY 
+);
+
+
 CREATE TABLE MenuItems (
   id INT AUTO_INCREMENT PRIMARY KEY,
   restaurant_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
   description TEXT,
+  name_categorie VARCHAR(100) NULL; 
   price DECIMAL(10, 2) NOT NULL,
   image VARCHAR(255),
-  FOREIGN KEY (restaurant_id) REFERENCES Restaurants(id)
+  FOREIGN KEY (restaurant_id) REFERENCES Restaurants(id),
+  FOREIGN KEY (name_categorie) REFERENCES Categorie(name_categorie)
 );
 
 CREATE TABLE Orders (
@@ -84,6 +92,24 @@ CREATE TABLE Notifications (
   sent_at DATETIME NOT NULL,
   FOREIGN KEY (user_id) REFERENCES Users(id),
   FOREIGN KEY (order_id) REFERENCES Orders(id)
+);
+CREATE TABLE prefer_restaurant (
+  user_id INT NOT NULL,
+  restaurant_id INT NOT NULL,
+  PRIMARY KEY (user_id,restaurant_id),
+  FOREIGN KEY (user_id) REFERENCES Users(id),
+  FOREIGN KEY (restaurant_id) REFERENCES Restaurants(id)
+);
+
+CREATE TABLE review (
+  user_id INT NOT NULL,
+  order_id INT NOT NULL,
+  rating INT NOT NULL,
+  review_text TEXT,
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (order_id,user_id),
+  FOREIGN KEY (user_id) REFERENCES Users(id),
+  FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
 

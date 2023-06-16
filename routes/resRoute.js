@@ -3,7 +3,9 @@ const router = express.Router();
 const restaurantController = require('../controllers/resController');
 
 // Route to get all restaurants
-router.get('/', restaurantController.getAllRestaurants);
+router.get('/:idUser', restaurantController.getAllRestaurants);
+router.get('/fav/:idUser', restaurantController.getFavriteRestaurants);
+
 /*
 // Menu Item routes
 router.post('/restaurants/:restaurantId/menuitems', createMenuItem);
@@ -19,6 +21,7 @@ router.delete('/restaurants/:restaurantId/ratings/:id', deleteRating);
 */
 // Route to get a specific restaurant by ID
 router.get('/:id', restaurantController.getRestaurantById);
+
 router.get('/:id/menu', restaurantController.getRestaurantMenuById);
 
 module.exports = router;

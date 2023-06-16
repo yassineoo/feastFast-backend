@@ -7,12 +7,16 @@ const userController = require('../controllers/usersController');
 router.get('/:id', userController.getUserById);
 
 // Create new user
-router.post('/', userController.createUser);
-
+router.post('/register', userController.sighUp);
+// login
+router.post('/login', userController.login);
 // Update user by id
-router.put('/:id', userController.updateUser);
+router.post('/edit', userController.updateUser);
 
 // Delete user by id
 router.delete('/:id', userController.deleteUser);
+
+// like or disLike
+router.post('/:iduser/:idres', userController.favoriteRestaurant);
 
 module.exports = router;

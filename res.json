@@ -1,0 +1,44 @@
+{
+	"id": 1,
+	"name": "Pho House",
+	"picture": "pho-house.jpg",
+	"logo": "pho-house-logo.png",
+	"locationAddress": "567 Walnut Street",
+	"locationMapLat": 34.0522,
+	"locationMaplong": -118.2437,
+	"cuisineType": "Vietnamese",
+	"phoneNumber": "(555) 555-6789",
+	"averageRating": 4.8,
+	"email": "info@phohouse.com",
+	"instaLink": "https://instagram.com/phohouse",
+	"fbLink": "https://facebook.com/phohouse",
+	"menuitems": [
+		{
+			"id": 2,
+			"restaurant_id": 1,
+			"name": "French Fries",
+			"categorie_name": "kook",
+			"description": "Thin, crispy french fries with sea salt",
+			"price": "4.99",
+			"image": "https://example.com/images/fries.jpg"
+		},
+		{
+			"id": 3,
+			"restaurant_id": 1,
+			"name": "Chicken Wings",
+			"categorie_name": "Appetizers",
+			"description": "Spicy buffalo chicken wings with blue cheese dip",
+			"price": "12.99",
+			"image": "https://example.com/images/wings.jpg"
+		},
+		{
+			"id": 3,
+			"restaurant_id": 1,
+			"name": "Chicken fire Wings",
+			"categorie_name": "Appetizers",
+			"description": "Spicy buffalo chicken wings with blue cheese dip",
+			"price": "12.99",
+			"image": "https://example.com/images/wings.jpg"
+		}
+	]
+}

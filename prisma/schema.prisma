@@ -14,6 +14,7 @@ model menuitems {
   description   String? @db.Text
   price         Decimal @db.Decimal(10, 2)
   image         String? @db.VarChar(255)
+  categorie     String? @db.VarChar(100)
 
   @@index([restaurant_id], map: "restaurant_id")
 }
@@ -67,19 +68,21 @@ model ratings {
 }
 
 model restaurants {
-  id              Int     @id @default(autoincrement())
-  name            String  @db.VarChar(255)
-  picture         String  @db.VarChar(255)
-  logo            String? @db.VarChar(255)
-  locationAddress String  @db.VarChar(255)
-  locationMapLat  Float?  @db.Float
-  locationMaplong Float?  @db.Float
-  cuisineType     String  @db.VarChar(255)
-  phoneNumber     String? @db.VarChar(20)
-  averageRating   Float?  @db.Float
-  email           String? @db.VarChar(255)
-  instaLink       String? @db.VarChar(255)
-  fbLink          String? @db.VarChar(255)
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(255)
+  picture         String    @db.VarChar(255)
+  logo            String?   @db.VarChar(255)
+  locationAddress String    @db.VarChar(255)
+  locationMapLat  Float?    @db.Float
+  locationMaplong Float?    @db.Float
+  cuisineType     String    @db.VarChar(255)
+  phoneNumber     String?   @db.VarChar(20)
+  averageRating   Float?    @db.Float
+  email           String?   @db.VarChar(255)
+  instaLink       String?   @db.VarChar(255)
+  fbLink          String?   @db.VarChar(255)
+  opening_time    DateTime? @default(dbgenerated("'10:00:00'")) @db.Time(0)
+  closing_time    DateTime? @default(dbgenerated("'00:00:00'")) @db.Time(0)
 }
 
 model users {
@@ -87,13 +90,32 @@ model users {
   name              String                  @db.VarChar(255)
   email             String                  @unique(map: "email") @db.VarChar(255)
   phone_number      String                  @unique(map: "phone_number") @db.VarChar(20)
-  address           String                  @db.VarChar(255)
+  address           String?                 @db.VarChar(255)
   password          String                  @db.VarChar(255)
   latitude          Float?                  @db.Float
   longitude         Float?                  @db.Float
   profile_picture   String?                 @db.VarChar(255)
   registration_type users_registration_type
   social_media_id   String?                 @db.VarChar(255)
+}
+
+model prefer_restaurant {
+  user_id       Int
+  restaurant_id Int
+
+  @@id([user_id, restaurant_id])
+  @@index([restaurant_id], map: "restaurant_id")
+}
+
+model review {
+  user_id     Int
+  order_id    Int
+  rating      Int
+  review_text String?  @db.Text
+  created_at  DateTime @db.DateTime(0)
+
+  @@id([order_id, user_id])
+  @@index([user_id], map: "user_id")
 }
 
 enum notifications_notification_type {
