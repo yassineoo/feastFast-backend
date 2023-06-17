@@ -45,15 +45,34 @@ const getFavriteRestaurants = async (req, res) => {
 	try {
 		const idUser = Number(req.params.idUser);
 
-		// Fetch preferred restaurants for the user
-		const preferredRestaurants = await prisma.prefer_restaurant.findMany({
+		// Fetch preferred restaurant IDs for the user
+		const preferredRestaurantIds =
+			await prisma.prefer_restaurant.findMany({
+				where: {
+					user_id: idUser,
+				},
+				select: {
+					restaurant_id: true,
+				},
+			});
+
+		// Extract the restaurant IDs from the fetched results
+		const restaurantIds = preferredRestaurantIds.map(
+			(item) => item.restaurant_id
+		);
+
+		// Fetch restaurant details for the extracted IDs
+		let preferredRestaurants = await prisma.restaurants.findMany({
 			where: {
-				user_id: idUser,
-			},
-			select: {
-				restaurant_id: true,
+				id: {
+					in: restaurantIds,
+				},
 			},
 		});
+		preferredRestaurants = preferredRestaurants.map((restaurant) => ({
+			...restaurant,
+			isPreferred: true,
+		}));
 
 		res.status(200).json(preferredRestaurants);
 	} catch (err) {

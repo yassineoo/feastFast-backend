@@ -17,6 +17,6 @@ router.post('/edit', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 
 // like or disLike
-router.post('/:iduser/:idres', userController.favoriteRestaurant);
+router.get('/:iduser/:idres', userController.favoriteRestaurant);
 
 module.exports = router;
