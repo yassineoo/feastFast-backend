@@ -21,6 +21,7 @@ router.delete('/restaurants/:restaurantId/ratings/:id', deleteRating);
 */
 // Route to get a specific restaurant by ID
 router.get('/:id', restaurantController.getRestaurantById);
+router.get('/ratings/:id', restaurantController.getRatingDistribution);
 
 router.get('/:id/menu', restaurantController.getRestaurantMenuById);
 

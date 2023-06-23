@@ -9,8 +9,8 @@ const path = require('path');
 async function sighUp(req, res) {
 	try {
 		console.log('hiii');
-		console.log(req.body);
-		console.log(req.body.image?.headers);
+//		console.log(req);
+		//console.log(req.body.image?.headers);
 		const form = new IncomingForm({
 			multiples: false,
 			keepExtensions: true,
@@ -33,13 +33,18 @@ async function sighUp(req, res) {
 				console.error(err);
 				throw err;
 			}
+			console.log(`fileds --------------------------------------`);
+			console.log( fields.user_data);
+			console.log(typeof fields.user_data);
+			console.log(`fileds --------------------------------------`);
 
-			let { ...data } = fields; // destructure the fields
-			console.log(files.image);
+
+			let  data= JSON.parse( fields.user_data ); // destructure the fields
+			//console.log(files.image);
 			console.log(`fields`);
-			console.log(fields);
+			console.log(data);
 			const image = files.image?.filepath; // get the path to the image file
-			hashedPassword = await bcrypt.hash(req.body.password, 10);
+			hashedPassword = await bcrypt.hash(data.password || "pass", 10);
 
 			const uploadsPath = path.join(__dirname, '..', 'public');
 			console.log(uploadsPath);
@@ -49,16 +54,18 @@ async function sighUp(req, res) {
 			console.log('saving the image ....');
 			// save the image to disk
 			if (image) {
-				const imageName = `profile${Math.random()}.png`; // use the advertiser ID as the image name
+				const imageName = `pr${Math.round(1000000 * Math.random()) }.png`; // use the advertiser ID as the image name
+
+			//	const imageName = `pr${(10000 * Math.random()).floor() }.png`; // use the advertiser ID as the image name
 				const imagePath = path.join(uploadsPath, imageName); // specify the path to save the image
 
 				await fs.promises.rename(image, imagePath);
 				console.log(imageName);
 
 				data = {
-					...fields,
+					...data,
 					password: hashedPassword,
-					image: imageName,
+					profile_picture: imageName,
 				};
 				const result = await prisma.users.create({
 					data,
@@ -88,7 +95,91 @@ const getUserById = async (req, res) => {
 	}
 };
 
+
+async function updateUser(req, res) {
+	try {
+		console.log('hiii');
+
+		const form = new IncomingForm({
+			multiples: false,
+			keepExtensions: true,
+			uploadDir: process.env.UPLOAD_DIR,
+			type: 'multipart',
+			parse: (req, options, callback) => {
+				// use the default parser
+				return IncomingForm.prototype.parse.call(
+					this,
+					req,
+					options,
+					callback
+				);
+			},
+		});
+
+		form.parse(req, async (err, fields, files) => {
+			console.log('parse function called !!');
+			if (err) {
+				console.error(err);
+				throw err;
+			}
+			console.log(`fileds --------------------------------------`);
+			console.log( fields.user_data);
+			console.log(typeof fields.user_data);
+			console.log(`fileds --------------------------------------`);
+
+
+			let  data= JSON.parse( fields.user_data ); // destructure the fields
+			//console.log(files.image);
+			console.log(`fields`);
+			console.log(data);
+			const image = files.image?.filepath; // get the path to the image file
+		    if(data.password) hashedPassword = await bcrypt.hash(data.password || "pass", 10);
+
+			const uploadsPath = path.join(__dirname, '..', 'public');
+			console.log(uploadsPath);
+			if (!fs.existsSync(uploadsPath)) {
+				fs.mkdirSync(uploadsPath);
+			}
+			// save the image to disk
+			if (image) {
+			//	const num= 10000 * Math.random();
+			//	console.log(num);
+				const imageName = `pr${Math.round(1000000 * Math.random()) }.png`; // use the advertiser ID as the image name
+				const imagePath = path.join(uploadsPath, imageName); // specify the path to save the image
+
+				await fs.promises.rename(image, imagePath);
+				console.log(imageName);
+				if (data.password) {
+					data = {
+						...data,
+						password: hashedPassword,
+						profile_picture: imageName,
+					};
+				}
+				else {
+					data = {
+						...data,
+						profile_picture: imageName,
+					};
+
+				}
+				const id = data.id;	
+				const result = await prisma.users.update({
+					where: { id: Number(id) },
+					data: { ...data },
+				});
+				console.log('result :', result);
+				return res.status(200).json(result);
+			}
+		});
+		console.log('ended');
+	} catch (error) {
+		console.error(error);
+		res.json({ secsus: false, message: error.message });
+	}
+}
 // Update a User
+/*
 const updateUser = async (req, res) => {
 	try {
 		const id = req.body.id;
@@ -109,6 +200,7 @@ const updateUser = async (req, res) => {
 		throw new Error('Error updating User');
 	}
 };
+*/
 
 //  Login :
 
@@ -169,34 +261,59 @@ const favoriteRestaurant = async (req, res) => {
 
 // Function to check if the restaurant is already favorited
 const checkIfRestaurantIsFavorite = async (userId, restaurantId) => {
-	const favorite = await prisma.prefer_restaurant.findFirst({
-		where: {
-			user_id: Number(userId),
-			restaurant_id: Number(restaurantId),
-		},
-	});
+	try {
+		const favorite = await prisma.prefer_restaurant.findFirst({
+			where: {
+				user_id: Number(userId),
+				restaurant_id: Number(restaurantId),
+			},
+		});
+		
+	
+
 
 	return favorite !== null;
+} catch (error) {
+	console.log(error);
+}
 };
 
 // Function to unlike the restaurant
 const unlikeRestaurant = async (userId, restaurantId) => {
-	await prisma.prefer_restaurant.deleteMany({
-		where: {
-			user_id: Number(userId),
-			restaurant_id: Number(restaurantId),
-		},
-	});
+    try {
+		
+		await prisma.prefer_restaurant.deleteMany({
+			where: {
+				user_id: Number(userId),
+				restaurant_id: Number(restaurantId),
+			},
+		});
+	} catch (error) {
+		console.log(error);
+		
+	}
+
 };
 
 // Function to like the restaurant
 const likeRestaurant = async (userId, restaurantId) => {
-	await prisma.prefer_restaurant.create({
-		data: {
-			user_id: Number(userId),
-			restaurant_id: Number(restaurantId),
-		},
-	});
+    try {
+		if (userId) {
+		
+			await prisma.prefer_restaurant.create({
+				data: {
+					user_id: Number(userId),
+					restaurant_id: Number(restaurantId),
+				},
+			});
+		}
+
+	} catch (error) {
+		console.log(error);
+	
+	}
+	
+
 };
 
 // Delete a User
