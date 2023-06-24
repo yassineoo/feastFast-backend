@@ -1,62 +1,112 @@
+const { id } = require('date-fns/locale');
 const prisma = require('../prisma/dbConnection');
 // Controller function to get all restaurants
 const getAllRestaurants = async (req, response) => {
 	try {
-		const idUser = Number(req.params.idUser);
-		let restaurants = [];
-
-		if (!idUser) {
-			// Fetch all restaurants
-			restaurants = await prisma.restaurants.findMany();
-			return response.status(200).json(restaurants);
-		} else {
-			// Fetch preferred restaurants for the user
-			const preferredRestaurants =
-				await prisma.prefer_restaurant.findMany({
-					where: {
-						user_id: idUser,
-					},
-					select: {
-						restaurant_id: true,
-					},
-				});
-
-			// Get the IDs of the preferred restaurants
-			const preferredRestaurantIds = preferredRestaurants.map(
-				(restaurant) => restaurant.restaurant_id
-			);
-
-			// Fetch all restaurants and mark them as preferred or not
-			restaurants = await prisma.restaurants.findMany();
-
-			// Add a new attribute indicating if the restaurant is preferred by the user
-			const allInforestaurants = await Promise.all(restaurants.map(async (restaurant) => {
-				const resInfo = await getAverageRatingAndRatersCount(restaurant.id);
-				console.log('restaurantInfo');
-				console.log('--------------------------------------------------------');
-				console.log(resInfo);
-				console.log('--------------------------------------------------------');
-			  
-				const reslt = {
-				  ...restaurant,
-				  isPreferred: preferredRestaurantIds.includes(restaurant.id),
-				  averageRating: resInfo?.averageRating ,
-				  ratersCount: resInfo?.totalRaters ,
-				};
-			  
-				return reslt;
-			  }));
-			  
-			  
-		
-			return response.status(200).json(allInforestaurants);
-		}
-
-		
+	  const idUser = Number(req.params.idUser);
+	  let restaurants = [];
+	  let preferredRestaurantIds = [];
+  
+	  // Fetch preferred restaurants for the user
+	  if (idUser) {
+		const preferredRestaurants = await prisma.prefer_restaurant.findMany({
+		  where: {
+			user_id: idUser,
+		  },
+		  select: {
+			restaurant_id: true,
+		  },
+		});
+  
+		// Get the IDs of the preferred restaurants
+		preferredRestaurantIds = preferredRestaurants.map(
+		  (restaurant) => restaurant.restaurant_id
+		);
+	  }
+  
+	  // Fetch all restaurants
+	  restaurants = await prisma.restaurants.findMany();
+  
+	  // Add a new attribute indicating if the restaurant is preferred by the user
+	  const allInfoRestaurants = await Promise.all(
+		restaurants.map(async (restaurant) => {
+		  const resInfo = await getAverageRatingAndRatersCount(restaurant.id);
+  
+		  const reslt = {
+			...restaurant,
+			isPreferred: preferredRestaurantIds.includes(restaurant.id),
+			averageRating: resInfo?.averageRating,
+			ratersCount: resInfo?.totalRaters,
+		  };
+  
+		  return reslt;
+		})
+	  );
+  
+	  // Sort the restaurants by average rating from highest to lowest
+	  const sortedRestaurants = allInfoRestaurants.sort(
+		(a, b) => b.averageRating - a.averageRating
+	  );
+  
+	  return response.status(200).json(sortedRestaurants);
 	} catch (err) {
-		response.status(500).json({ error: err.message });
+	  response.status(500).json({ error: err.message });
 	}
-};
+  };
+
+const getAllRestaurantsTopRaters = async (req, response) => {
+	try {
+	  const idUser = Number(req.params.idUser);
+	  let restaurants = [];
+	  let preferredRestaurantIds = [];
+  
+	  // Fetch preferred restaurants for the user
+	  if (idUser) {
+		const preferredRestaurants = await prisma.prefer_restaurant.findMany({
+		  where: {
+			user_id: idUser,
+		  },
+		  select: {
+			restaurant_id: true,
+		  },
+		});
+  
+		// Get the IDs of the preferred restaurants
+		preferredRestaurantIds = preferredRestaurants.map(
+		  (restaurant) => restaurant.restaurant_id
+		);
+	  }
+  
+	  // Fetch all restaurants
+	  restaurants = await prisma.restaurants.findMany();
+  
+	  // Add a new attribute indicating if the restaurant is preferred by the user
+	  const allInfoRestaurants = await Promise.all(
+		restaurants.map(async (restaurant) => {
+		  const resInfo = await getAverageRatingAndRatersCount(restaurant.id);
+  
+		  const reslt = {
+			...restaurant,
+			isPreferred: preferredRestaurantIds.includes(restaurant.id),
+			averageRating: resInfo?.averageRating,
+			ratersCount: resInfo?.totalRaters,
+		  };
+  
+		  return reslt;
+		})
+	  );
+  
+	  // Sort the restaurants by average rating from highest to lowest
+	  const sortedRestaurants = allInfoRestaurants.sort(
+		(a, b) => b.totalRaters - a.totalRaters
+	  );
+  
+	  return response.status(200).json(sortedRestaurants);
+	} catch (err) {
+	  response.status(500).json({ error: err.message });
+	}
+  };
+  
 
 const getFavriteRestaurants = async (req, res) => {
 	try {
@@ -100,27 +150,36 @@ const getFavriteRestaurants = async (req, res) => {
 // Controller function to get a specific restaurant by ID
 const getRestaurantById = async (req, res) => {
 	try {
-		const { id } = req.params;
+		const { idUser,idRes } = req.params;
+		
 		const restaurant = await prisma.restaurants.findUnique({
 			where: {
-				id: Number(id),
+				id: Number(idRes),
 			},
 		});
+		let favorite = null;
+		if (idUser) {
+		 favorite = await prisma.prefer_restaurant.findFirst({
+			where: {
+				user_id: Number(idUser),
+				restaurant_id : Number(idRes)
+			}
+		});
+
+	}
 
 		if (!restaurant) {
 			// Handle the case when the restaurant doesn't exist
 			return res.status(404).json({ error: 'Restaurant not found' });
 		}
 
-		const menuitems = await prisma.menuitems.findMany({
-			where: {
-				restaurant_id: Number(id),
-			},
-		});
-
+		const resInfo = await getAverageRatingAndRatersCount(idRes);
 		const restaurantWithMenu = {
 			...restaurant,
-			menuitems: menuitems,
+			isPreferred: favorite ? true:false,
+			averageRating: resInfo?.averageRating ,
+			ratersCount: resInfo?.totalRaters ,
+			
 		};
 
 		res.status(200).json(restaurantWithMenu);
@@ -226,7 +285,7 @@ const getRatingsByRestaurantId = async (req, res) => {
   async function getAverageRatingAndRatersCount(restaurantId) {
 	const ratings = await prisma.ratings.findMany({
 	  where: {
-		restaurant_id: restaurantId,
+		restaurant_id:Number (restaurantId),
 	  },
 	});
   
@@ -241,5 +300,6 @@ module.exports = {
 	getRestaurantById,
 	getRestaurantMenuById,
 	getFavriteRestaurants,
-	getRatingDistribution
+	getRatingDistribution,
+	addRating
 };

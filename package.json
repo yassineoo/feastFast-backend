@@ -16,6 +16,9 @@
      "dependencies": {
           "@prisma/client": "^4.13.0",
           "bcrypt": "^5.1.0",
+          "date-fns": "^2.30.0",
+          "fcm-notification": "^2.0.0",
+          "firebase-admin": "^11.9.0",
           "formidable": "^2.1.1",
           "jsonwebtoken": "^9.0.0",
           "nodemon": "^2.0.22"

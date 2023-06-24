@@ -1,33 +1,27 @@
 const prisma = require('../prisma/dbConnection');
-
+const { format } = require('date-fns');
 // Create a new order
 async function createOrder(req, res) {
-     try {
-          const {
-               user_id,
-               restaurant_id,
-               delivery_address,
-               delivery_notes,
-               order_items,
-          } = req.body;
+     
+          const data  = req.body;
 
           // Create the order in the database
-          const order = await prisma.orders.create({
-               data: {
-                    user_id,
-                    restaurant_id,
-                    delivery_address,
-                    delivery_notes,
-                    order_items: {
-                         create: order_items,
-                    },
-               },
-               include: {
-                    order_items: true,
-               },
-          });
+          const date = new Date(); // Replace this with your actual date value
+          const time = new Date(); // Replace this with your actual time value
+        
+          const formattedDate = format(date, 'yyyy-MM-dd');
+          const formattedTime = format(time, 'HH:mm:ss');
+        
+          try {
+            const createdOrder = await prisma.orders.create({
+              data: {...data,
+                date: new Date(),
+                time: new Date(),
+                // other order data...
+              },
+            });
 
-          res.status(201).json(order);
+          res.status(201).json(createdOrder);
      } catch (error) {
           console.error(error);
           res.status(500).json({ message: 'Error creating order' });
@@ -41,22 +35,17 @@ async function getOrdersByUserId(req, res) {
 
           const orders = await prisma.orders.findMany({
                where: {
-                    user_id: userId,
+                    user_id: Number(userId),
                },
-               include: {
-                    order_items: {
-                         include: {
-                              menu_item: true,
-                         },
+                    orderBy: {
+                         date: 'desc',
                     },
-                    restaurant: true,
-               },
           });
 
-          res.json(orders);
+          return res.json(orders);
      } catch (error) {
           console.error(error);
-          res.status(500).json({ message: 'Error getting orders by user id' });
+          return res.status(500).json({ message: 'Error getting orders by user id'+error });
      }
 }
 /*
