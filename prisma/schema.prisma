@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://cupa:FZrP@Q3uuRZ*i7L@mysql-cuppa.alwaysdata.net/feastFast"
+  url      = "mysql://cuppa:FZrP@Q3uuRZ*i7L@mysql-cuppa.alwaysdata.net/cuppa_feastFast"
 }
 
 model menuitems {
