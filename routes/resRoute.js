@@ -4,7 +4,7 @@ const restaurantController = require('../controllers/resController');
 
 // Route to get all restaurants
 router.get('/:idUser', restaurantController.getAllRestaurants);
-router.get('/topraters/:idUser', restaurantController.getAllRestaurants);
+router.get('/topraters/:idUser', restaurantController.getAllRestaurantsTopRaters);
 router.get('/fav/:idUser', restaurantController.getFavriteRestaurants);
 router.post('/rating', restaurantController.addRating);
 /*

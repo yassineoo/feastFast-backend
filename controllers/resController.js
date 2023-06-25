@@ -301,5 +301,6 @@ module.exports = {
 	getRestaurantMenuById,
 	getFavriteRestaurants,
 	getRatingDistribution,
-	addRating
+	addRating,
+	getAllRestaurantsTopRaters
 };
